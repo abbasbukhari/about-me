@@ -1,16 +1,42 @@
-# React + Vite
+# About Me
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple mobile-friendly web app that lets you fill in an "About Me" card and download it as a PDF to share with others.
 
-Currently, two official plugins are available:
+**Live app:** https://abbasbukhari.github.io/about-me
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## What it does
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Fill in 9 personal questions (age, hobbies, favourite food, and more)
+- Download your completed card as a PDF with one tap
+- Share the PDF on WhatsApp or anywhere else
 
-## Expanding the ESLint configuration
+## Pages
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Page | Description |
+|------|-------------|
+| About Me | 3×3 grid of editable cards — fill in your answers and download as PDF |
+| How to Use | Step-by-step guide to filling in, downloading, and sharing |
+
+## Running locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:5173
+
+## Deploying
+
+```bash
+npm run deploy
+```
+
+Builds and publishes to GitHub Pages at https://abbasbukhari.github.io/about-me
+
+## Tech
+
+- React + Vite
+- html2pdf.js for PDF generation

@@ -20,20 +20,20 @@ const STEPS = [
   {
     color: '#1A5276',
     num: '1',
-    title: 'Fill in the About Me slide',
-    body: 'Open this file in the Google Slides app (free on iOS & Android). Tap each "Type your answer here" box and type your answer. Tap outside the box when done.',
+    title: 'Fill in the About Me form',
+    body: 'Open the app on your phone or computer. Tap the "About Me" tab and fill in each box — age, hobbies, favourite food, and more. Your answers are saved while the page is open.',
   },
   {
     color: '#117A65',
     num: '2',
-    title: 'Save as PDF',
-    body: 'iPhone/iPad: Tap the 3-dot menu > Share & export > Save as > PDF > tick to save.\nAndroid: Tap the 3-dot menu > Share & export > Save as > PDF. Saved to Files/Downloads.',
+    title: 'Download as PDF',
+    body: 'Once you\'ve filled in your answers, tap the green "Download PDF" button at the top. A PDF of your completed About Me card will be saved to your device automatically.',
   },
   {
     color: '#7D3C98',
     num: '3',
     title: 'Share on WhatsApp',
-    body: 'Open WhatsApp > go to the chat > tap attachment icon > Document > select the PDF > Send.',
+    body: 'Open WhatsApp > go to the chat > tap the attachment icon > Document > find the downloaded PDF > Send. Your About Me card is ready to share!',
   },
 ]
 
