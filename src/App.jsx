@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import html2pdf from 'html2pdf.js'
 import './App.css'
 
 const LABELS = [
@@ -36,7 +37,7 @@ const STEPS = [
   },
 ]
 
-function AboutMe() {
+function AboutMe({ slideRef }) {
   const [answers, setAnswers] = useState(Array(9).fill(''))
 
   const handleChange = (i, value) => {
@@ -48,7 +49,7 @@ function AboutMe() {
   }
 
   return (
-    <div className="slide">
+    <div className="slide" ref={slideRef}>
       <div className="slide-header" style={{ background: '#1A5276' }}>
         ABOUT ME
       </div>
@@ -110,24 +111,50 @@ function HowToUse() {
 
 export default function App() {
   const [page, setPage] = useState('about')
+  const [downloading, setDownloading] = useState(false)
+  const slideRef = useRef(null)
+
+  const handleDownload = async () => {
+    if (!slideRef.current) return
+    setDownloading(true)
+    const opt = {
+      margin: 0,
+      filename: 'about-me.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'px', format: [slideRef.current.offsetWidth, slideRef.current.offsetHeight], orientation: 'landscape' },
+    }
+    await html2pdf().set(opt).from(slideRef.current).save()
+    setDownloading(false)
+  }
 
   return (
     <div className="app">
-      <nav className="nav">
-        <button
-          className={page === 'about' ? 'active' : ''}
-          onClick={() => setPage('about')}
-        >
-          About Me
+      <div className="top-bar">
+        <nav className="nav">
+          <button
+            className={page === 'about' ? 'active' : ''}
+            onClick={() => setPage('about')}
+          >
+            About Me
+          </button>
+          <button
+            className={page === 'how' ? 'active' : ''}
+            onClick={() => setPage('how')}
+          >
+            How to Use
+          </button>
+        </nav>
+        <button className="btn-download" onClick={handleDownload} disabled={downloading}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          {downloading ? 'Downloading...' : 'Download PDF'}
         </button>
-        <button
-          className={page === 'how' ? 'active' : ''}
-          onClick={() => setPage('how')}
-        >
-          How to Use
-        </button>
-      </nav>
-      {page === 'about' ? <AboutMe /> : <HowToUse />}
+      </div>
+      {page === 'about' ? <AboutMe slideRef={slideRef} /> : <HowToUse />}
     </div>
   )
 }
