@@ -37,19 +37,10 @@ const STEPS = [
   },
 ]
 
-function AboutMe({ slideRef }) {
-  const [answers, setAnswers] = useState(Array(9).fill(''))
-
-  const handleChange = (i, value) => {
-    setAnswers(prev => {
-      const next = [...prev]
-      next[i] = value
-      return next
-    })
-  }
-
+// Visible responsive version
+function AboutMe({ answers, onChange }) {
   return (
-    <div className="slide" ref={slideRef}>
+    <div className="slide">
       <div className="slide-header" style={{ background: '#1A5276' }}>
         ABOUT ME
       </div>
@@ -65,8 +56,37 @@ function AboutMe({ slideRef }) {
                   <textarea
                     placeholder="Type your answer here"
                     value={answers[i]}
-                    onChange={e => handleChange(i, e.target.value)}
+                    onChange={e => onChange(i, e.target.value)}
                   />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// Hidden fixed-width version used only for PDF capture
+function AboutMePrint({ answers, printRef }) {
+  return (
+    <div className="slide slide--print" ref={printRef}>
+      <div className="slide-header" style={{ background: '#1A5276' }}>
+        ABOUT ME
+      </div>
+      <div className="cards-grid cards-grid--print">
+        {LABELS.map((label, i) => {
+          const row = Math.floor(i / 3)
+          return (
+            <div className="card" key={i}>
+              <div className="card-stripe" style={{ background: ROW_COLORS[row] }} />
+              <div className="card-body">
+                <div className="card-label">{label}</div>
+                <div className="card-answer-box">
+                  <div className="card-answer-text">
+                    {answers[i] || <span className="card-answer-placeholder">Type your answer here</span>}
+                  </div>
                 </div>
               </div>
             </div>
@@ -101,7 +121,7 @@ function HowToUse() {
         <div className="tip-bar">
           <div className="tip-accent" />
           <div className="tip-text">
-            Tip: Keep the original Slides file as a backup before filling in your answers.
+            Tip: Keep your browser tab open while filling in answers — they are stored in memory and will reset if you close the page.
           </div>
         </div>
       </div>
@@ -111,20 +131,30 @@ function HowToUse() {
 
 export default function App() {
   const [page, setPage] = useState('about')
+  const [answers, setAnswers] = useState(Array(9).fill(''))
   const [downloading, setDownloading] = useState(false)
-  const slideRef = useRef(null)
+  const printRef = useRef(null)
+
+  const handleChange = (i, value) => {
+    setAnswers(prev => {
+      const next = [...prev]
+      next[i] = value
+      return next
+    })
+  }
 
   const handleDownload = async () => {
-    if (!slideRef.current) return
+    if (!printRef.current) return
     setDownloading(true)
+    const el = printRef.current
     const opt = {
       margin: 0,
       filename: 'about-me.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'px', format: [slideRef.current.offsetWidth, slideRef.current.offsetHeight], orientation: 'landscape' },
+      html2canvas: { scale: 2, useCORS: true, width: el.scrollWidth, height: el.scrollHeight },
+      jsPDF: { unit: 'px', format: [el.scrollWidth, el.scrollHeight], orientation: 'landscape' },
     }
-    await html2pdf().set(opt).from(slideRef.current).save()
+    await html2pdf().set(opt).from(el).save()
     setDownloading(false)
   }
 
@@ -154,7 +184,15 @@ export default function App() {
           {downloading ? 'Downloading...' : 'Download PDF'}
         </button>
       </div>
-      {page === 'about' ? <AboutMe slideRef={slideRef} /> : <HowToUse />}
+
+      {page === 'about' ? (
+        <AboutMe answers={answers} onChange={handleChange} />
+      ) : (
+        <HowToUse />
+      )}
+
+      {/* Off-screen fixed-width element used for PDF generation */}
+      <AboutMePrint answers={answers} printRef={printRef} />
     </div>
   )
 }

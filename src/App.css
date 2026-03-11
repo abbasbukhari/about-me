@@ -250,6 +250,36 @@ body {
   align-items: center;
 }
 
+/* Hidden print version — always renders at desktop width for PDF capture */
+.slide--print {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 780px;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cards-grid--print {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.card-answer-text {
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  color: #333;
+  padding: 6px 8px;
+  line-height: 1.4;
+  min-height: 58px;
+}
+
+.card-answer-placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .app {
