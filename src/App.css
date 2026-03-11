@@ -250,9 +250,11 @@ body {
   align-items: center;
 }
 
-/* Print layout — hidden on screen, only shown when printing */
-.print-layout {
-  display: none;
+/* Hide print layout on screen only — never applies during printing */
+@media screen {
+  .print-layout {
+    display: none;
+  }
 }
 
 @media print {
@@ -261,16 +263,23 @@ body {
     margin: 8mm;
   }
 
-  body {
-    background: white;
+  /* Ensure all colours render (backgrounds, stripes, etc.) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* Hide the entire app UI */
+  body {
+    background: white;
+    margin: 0;
+  }
+
+  /* Hide the app UI */
   .app {
     display: none !important;
   }
 
-  /* Show only the print layout */
+  /* Show the print layout */
   .print-layout {
     display: block;
     font-family: Arial, sans-serif;
