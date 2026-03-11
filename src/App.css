@@ -51,13 +51,18 @@ body {
   color: #fff;
 }
 
-/* Download button */
+/* Action buttons group */
+.action-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* Download buttons */
 .btn-download {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: #117A65;
+  padding: 10px 18px;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -69,8 +74,18 @@ body {
   transition: background 0.2s;
 }
 
-.btn-download:hover {
+.btn-pdf {
+  background: #117A65;
+}
+.btn-pdf:hover {
   background: #0e6655;
+}
+
+.btn-png {
+  background: #7D3C98;
+}
+.btn-png:hover {
+  background: #6c3483;
 }
 
 .btn-download:disabled {
@@ -381,6 +396,11 @@ body {
   .nav button {
     flex: 1;
     text-align: center;
+  }
+
+  .action-btns {
+    width: 100%;
+    flex-direction: column;
   }
 
   .btn-download {
