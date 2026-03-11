@@ -179,18 +179,21 @@ export default function App() {
   const handleDownload = async () => {
     setDownloading(true)
 
-    // Build a fresh DOM element with all inline styles — no CSS classes,
-    // no media queries, guaranteed 3-column desktop layout on any device.
+    // White overlay hides the print element from the user while it renders.
+    // html2canvas only traverses the target element's subtree, so the overlay
+    // sitting on top does NOT affect the capture — only the z-index does.
+    const overlay = document.createElement('div')
+    overlay.style.cssText =
+      'position:fixed;inset:0;background:#ffffff;z-index:9999;pointer-events:none;'
+    document.body.appendChild(overlay)
+
+    // Print element must have a positive z-index so html2canvas can see it.
     const el = buildPrintElement(answers)
-    el.style.position = 'fixed'
-    el.style.top = '0'
-    el.style.left = '0'
-    el.style.zIndex = '-9999'
-    el.style.pointerEvents = 'none'
+    el.style.cssText += 'position:fixed;top:0;left:0;z-index:9998;pointer-events:none;'
     document.body.appendChild(el)
 
-    // Let the browser render the element before capturing
-    await new Promise(r => setTimeout(r, 50))
+    // Let the browser fully render both elements before capturing
+    await new Promise(r => setTimeout(r, 100))
 
     const opt = {
       margin: 0,
@@ -207,6 +210,7 @@ export default function App() {
     await html2pdf().set(opt).from(el).save()
 
     document.body.removeChild(el)
+    document.body.removeChild(overlay)
     setDownloading(false)
   }
 
