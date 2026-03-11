@@ -139,40 +139,42 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <div className="top-bar">
-        <nav className="nav">
-          <button
-            className={page === 'about' ? 'active' : ''}
-            onClick={() => setPage('about')}
-          >
-            About Me
+    <>
+      <div className="app">
+        <div className="top-bar">
+          <nav className="nav">
+            <button
+              className={page === 'about' ? 'active' : ''}
+              onClick={() => setPage('about')}
+            >
+              About Me
+            </button>
+            <button
+              className={page === 'how' ? 'active' : ''}
+              onClick={() => setPage('how')}
+            >
+              How to Use
+            </button>
+          </nav>
+          <button className="btn-download" onClick={() => window.print()}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download PDF
           </button>
-          <button
-            className={page === 'how' ? 'active' : ''}
-            onClick={() => setPage('how')}
-          >
-            How to Use
-          </button>
-        </nav>
-        <button className="btn-download" onClick={() => window.print()}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Download PDF
-        </button>
+        </div>
+
+        {page === 'about' ? (
+          <AboutMe answers={answers} onChange={handleChange} />
+        ) : (
+          <HowToUse />
+        )}
       </div>
 
-      {page === 'about' ? (
-        <AboutMe answers={answers} onChange={handleChange} />
-      ) : (
-        <HowToUse />
-      )}
-
-      {/* Always in DOM, invisible on screen, shown only when printing */}
+      {/* Outside .app so it isn't hidden by .app { display:none } in print CSS */}
       <PrintLayout answers={answers} />
-    </div>
+    </>
   )
 }
