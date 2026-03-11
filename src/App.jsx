@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import html2pdf from 'html2pdf.js'
 import './App.css'
 
@@ -27,7 +27,7 @@ const STEPS = [
     color: '#117A65',
     num: '2',
     title: 'Download as PDF',
-    body: 'Once you\'ve filled in your answers, tap the green "Download PDF" button at the top. A PDF of your completed About Me card will be saved to your device automatically.',
+    body: "Once you've filled in your answers, tap the green \"Download PDF\" button at the top. A PDF of your completed About Me card will be saved to your device automatically.",
   },
   {
     color: '#7D3C98',
@@ -37,7 +37,70 @@ const STEPS = [
   },
 ]
 
-// Visible responsive version
+// Builds the 3-column desktop layout as a DOM element using only inline styles.
+// This bypasses all CSS classes and media queries so it always renders correctly.
+function buildPrintElement(answers) {
+  const W = 780
+  const CARD_H = 148
+  const cols = 3
+
+  const wrap = document.createElement('div')
+  wrap.style.cssText = `width:${W}px;background:#ffffff;font-family:Arial,sans-serif;`
+
+  // Header
+  const header = document.createElement('div')
+  header.style.cssText =
+    'height:72px;background:#1A5276;display:flex;align-items:center;justify-content:center;' +
+    'color:#ffffff;font-size:26px;font-weight:bold;letter-spacing:0.5px;'
+  header.textContent = 'ABOUT ME'
+  wrap.appendChild(header)
+
+  // Grid
+  const grid = document.createElement('div')
+  grid.style.cssText =
+    `display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px;padding:12px 14px 16px;`
+  wrap.appendChild(grid)
+
+  LABELS.forEach((label, i) => {
+    const row = Math.floor(i / cols)
+
+    const card = document.createElement('div')
+    card.style.cssText =
+      `background:#F4F6F7;border-radius:4px;overflow:hidden;display:flex;flex-direction:column;min-height:${CARD_H}px;`
+
+    const stripe = document.createElement('div')
+    stripe.style.cssText = `height:6px;background:${ROW_COLORS[row]};flex-shrink:0;`
+    card.appendChild(stripe)
+
+    const body = document.createElement('div')
+    body.style.cssText = 'padding:10px;flex:1;display:flex;flex-direction:column;gap:8px;'
+
+    const labelEl = document.createElement('div')
+    labelEl.style.cssText =
+      'font-size:13px;font-weight:bold;color:#1A1A2E;min-height:36px;line-height:1.3;'
+    labelEl.textContent = label
+    body.appendChild(labelEl)
+
+    const answerBox = document.createElement('div')
+    answerBox.style.cssText =
+      'background:#ffffff;border-radius:3px;flex:1;padding:6px 8px;min-height:58px;'
+
+    const answerText = document.createElement('div')
+    const hasAnswer = answers[i] && answers[i].trim() !== ''
+    answerText.style.cssText =
+      `font-size:11px;line-height:1.4;font-family:Arial,sans-serif;` +
+      `color:${hasAnswer ? '#333333' : '#aaaaaa'};font-style:${hasAnswer ? 'normal' : 'italic'};`
+    answerText.textContent = hasAnswer ? answers[i] : 'Type your answer here'
+    answerBox.appendChild(answerText)
+    body.appendChild(answerBox)
+
+    card.appendChild(body)
+    grid.appendChild(card)
+  })
+
+  return wrap
+}
+
 function AboutMe({ answers, onChange }) {
   return (
     <div className="slide">
@@ -58,35 +121,6 @@ function AboutMe({ answers, onChange }) {
                     value={answers[i]}
                     onChange={e => onChange(i, e.target.value)}
                   />
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-// Hidden fixed-width version used only for PDF capture
-function AboutMePrint({ answers, printRef }) {
-  return (
-    <div className="slide slide--print" ref={printRef}>
-      <div className="slide-header" style={{ background: '#1A5276' }}>
-        ABOUT ME
-      </div>
-      <div className="cards-grid cards-grid--print">
-        {LABELS.map((label, i) => {
-          const row = Math.floor(i / 3)
-          return (
-            <div className="card" key={i}>
-              <div className="card-stripe" style={{ background: ROW_COLORS[row] }} />
-              <div className="card-body">
-                <div className="card-label">{label}</div>
-                <div className="card-answer-box">
-                  <div className="card-answer-text">
-                    {answers[i] || <span className="card-answer-placeholder">Type your answer here</span>}
-                  </div>
                 </div>
               </div>
             </div>
@@ -133,7 +167,6 @@ export default function App() {
   const [page, setPage] = useState('about')
   const [answers, setAnswers] = useState(Array(9).fill(''))
   const [downloading, setDownloading] = useState(false)
-  const printRef = useRef(null)
 
   const handleChange = (i, value) => {
     setAnswers(prev => {
@@ -144,17 +177,36 @@ export default function App() {
   }
 
   const handleDownload = async () => {
-    if (!printRef.current) return
     setDownloading(true)
-    const el = printRef.current
+
+    // Build a fresh DOM element with all inline styles — no CSS classes,
+    // no media queries, guaranteed 3-column desktop layout on any device.
+    const el = buildPrintElement(answers)
+    el.style.position = 'fixed'
+    el.style.top = '0'
+    el.style.left = '0'
+    el.style.zIndex = '-9999'
+    el.style.pointerEvents = 'none'
+    document.body.appendChild(el)
+
+    // Let the browser render the element before capturing
+    await new Promise(r => setTimeout(r, 50))
+
     const opt = {
       margin: 0,
       filename: 'about-me.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, width: el.scrollWidth, height: el.scrollHeight },
-      jsPDF: { unit: 'px', format: [el.scrollWidth, el.scrollHeight], orientation: 'landscape' },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: {
+        unit: 'px',
+        format: [el.offsetWidth, el.offsetHeight],
+        orientation: 'landscape',
+      },
     }
+
     await html2pdf().set(opt).from(el).save()
+
+    document.body.removeChild(el)
     setDownloading(false)
   }
 
@@ -190,9 +242,6 @@ export default function App() {
       ) : (
         <HowToUse />
       )}
-
-      {/* Off-screen fixed-width element used for PDF generation */}
-      <AboutMePrint answers={answers} printRef={printRef} />
     </div>
   )
 }
